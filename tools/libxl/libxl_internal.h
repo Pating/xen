@@ -3184,6 +3184,7 @@ typedef struct libxl__colo_save_state libxl__colo_save_state;
 struct libxl__colo_save_state {
     int send_fd;
     int recv_fd;
+    char *colo_proxy_script;
 
     /* private */
     libxl__stream_read_state srs;
@@ -3523,6 +3524,7 @@ struct libxl__domain_create_state {
     libxl_asyncprogress_how aop_console_how;
     /* private to domain_create */
     int guest_domid;
+    const char *colo_proxy_script;
     libxl__domain_build_state build_state;
     libxl__colo_restore_state crs;
     libxl__checkpoint_devices_state cds;
