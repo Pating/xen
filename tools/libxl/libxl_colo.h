@@ -99,5 +99,9 @@ extern void libxl__colo_save_teardown(struct libxl__egc *egc,
                                       int rc);
 extern int colo_proxy_setup(libxl__colo_proxy_state *cps);
 extern void colo_proxy_teardown(libxl__colo_proxy_state *cps);
+extern void colo_proxy_preresume(libxl__colo_proxy_state *cps);
+extern void colo_proxy_postresume(libxl__colo_proxy_state *cps);
+extern int colo_proxy_checkpoint(libxl__colo_proxy_state *cps,
+                                 unsigned int timeout_us);
 
 #endif

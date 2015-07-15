@@ -216,3 +216,65 @@ void colo_proxy_teardown(libxl__colo_proxy_state *cps)
         cps->sock_fd = -1;
     }
 }
+
+/* ========= colo-proxy: preresume, postresume and checkpoint ========== */
+
+void colo_proxy_preresume(libxl__colo_proxy_state *cps)
+{
+    colo_proxy_send(cps, NULL, 0, COLO_CHECKPOINT);
+    /* TODO: need to handle if the call fails... */
+}
+
+void colo_proxy_postresume(libxl__colo_proxy_state *cps)
+{
+    /* nothing to do... */
+}
+
+typedef struct colo_msg {
+    bool is_checkpoint;
+} colo_msg;
+
+/*
+ * Return value:
+ * -1: error
+ *  0: no checkpoint event is received before timeout
+ *  1: do checkpoint
+ */
+int colo_proxy_checkpoint(libxl__colo_proxy_state *cps,
+                          unsigned int timeout_us)
+{
+    uint8_t *buff;
+    int64_t size;
+    struct nlmsghdr *h;
+    struct colo_msg *m;
+    int ret = -1;
+
+    STATE_AO_GC(cps->ao);
+
+    size = colo_proxy_recv(cps, &buff, timeout_us);
+
+    /* timeout, return no checkpoint message. */
+    if (size <= 0) {
+        return 0;
+    }
+
+    h = (struct nlmsghdr *) buff;
+
+    if (h->nlmsg_type == NLMSG_ERROR) {
+        LOG(ERROR, "receive NLMSG_ERROR");
+        goto out;
+    }
+
+    if (h->nlmsg_len < NLMSG_LENGTH(sizeof(*m))) {
+        LOG(ERROR, "NLMSG_LENGTH is too short");
+        goto out;
+    }
+
+    m = NLMSG_DATA(h);
+
+    ret = m->is_checkpoint ? 1 : 0;
+
+out:
+    free(buff);
+    return ret;
+}
