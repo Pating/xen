@@ -3202,6 +3202,7 @@ struct libxl__colo_save_state {
 
     /* private, used by colo-proxy */
     libxl__colo_proxy_state cps;
+    libxl__ev_child child;
 };
 
 typedef struct libxl__logdirty_switch {
