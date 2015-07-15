@@ -3392,6 +3392,11 @@ void libxl__device_nic_add(libxl__egc *egc, uint32_t domid,
         flexarray_append(back, nic->ifname);
     }
 
+    if (nic->forwarddev) {
+        flexarray_append(back, "forwarddev");
+        flexarray_append(back, nic->forwarddev);
+    }
+
     flexarray_append(back, "mac");
     flexarray_append(back,GCSPRINTF(LIBXL_MAC_FMT, LIBXL_MAC_BYTES(nic->mac)));
     if (nic->ip) {
@@ -3514,6 +3519,7 @@ static int libxl__device_nic_from_xs_be(libxl__gc *gc,
     nic->ip = READ_BACKEND(NOGC, "ip");
     nic->bridge = READ_BACKEND(NOGC, "bridge");
     nic->script = READ_BACKEND(NOGC, "script");
+    nic->forwarddev = READ_BACKEND(NOGC, "forwarddev");
 
     /* vif_ioemu nics use the same xenstore entries as vif interfaces */
     tmp = READ_BACKEND(gc, "type");
