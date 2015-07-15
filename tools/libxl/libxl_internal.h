@@ -3042,6 +3042,7 @@ struct libxl__stream_write_state {
     libxl__ao *ao;
     libxl__domain_save_state *dss;
     int fd;
+    bool back_channel;
     void (*completion_callback)(libxl__egc *egc,
                                 libxl__stream_write_state *sws,
                                 int rc);
@@ -3053,6 +3054,7 @@ struct libxl__stream_write_state {
     bool running;
     bool in_checkpoint;
     bool sync_teardown;  /* Only used to coordinate shutdown on error path. */
+    bool in_checkpoint_state;
     libxl__save_helper_state shs;
 
     /* Main stream-writing data. */
@@ -3076,6 +3078,10 @@ _hidden void libxl__stream_write_start(libxl__egc *egc,
 _hidden void
 libxl__stream_write_start_checkpoint(libxl__egc *egc,
                                      libxl__stream_write_state *stream);
+_hidden void
+libxl__stream_write_checkpoint_state(libxl__egc *egc,
+                                     libxl__stream_write_state *stream,
+                                     libxl_sr_checkpoint_state *srcs);
 _hidden void libxl__stream_write_abort(libxl__egc *egc,
                                        libxl__stream_write_state *stream,
                                        int rc);
