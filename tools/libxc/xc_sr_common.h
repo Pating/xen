@@ -184,10 +184,12 @@ struct xc_sr_context
      * migration stream
      * 0: Plain VM
      * 1: Remus
+     * 2: COLO
      */
     enum {
         MIG_STREAM_NONE, /* plain stream */
         MIG_STREAM_REMUS,
+        MIG_STREAM_COLO,
     } migration_stream;
 
     union /* Common save or restore data. */
