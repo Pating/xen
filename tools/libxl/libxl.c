@@ -2307,6 +2307,8 @@ int libxl__device_disk_setdefault(libxl__gc *gc, libxl_device_disk *disk)
     int rc;
 
     libxl_defbool_setdefault(&disk->discard_enable, !!disk->readwrite);
+    libxl_defbool_setdefault(&disk->colo_enable, false);
+    libxl_defbool_setdefault(&disk->colo_restore_enable, false);
 
     rc = libxl__resolve_domid(gc, disk->backend_domname, &disk->backend_domid);
     if (rc < 0) return rc;
@@ -2505,6 +2507,18 @@ static void device_disk_add(libxl__egc *egc, uint32_t domid,
                 flexarray_append(back, "params");
                 flexarray_append(back, GCSPRINTF("%s:%s",
                               libxl__device_disk_string_of_format(disk->format), disk->pdev_path));
+                if (libxl_defbool_val(disk->colo_enable)) {
+                    flexarray_append(back, "colo-host");
+                    flexarray_append(back, libxl__sprintf(gc, "%s", disk->colo_host));
+                    flexarray_append(back, "colo-port");
+                    flexarray_append(back, libxl__sprintf(gc, "%s", disk->colo_port));
+                    flexarray_append(back, "colo-export");
+                    flexarray_append(back, libxl__sprintf(gc, "%s", disk->colo_export));
+                    flexarray_append(back, "active-disk");
+                    flexarray_append(back, libxl__sprintf(gc, "%s", disk->active_disk));
+                    flexarray_append(back, "hidden-disk");
+                    flexarray_append(back, libxl__sprintf(gc, "%s", disk->hidden_disk));
+                }
                 assert(device->backend_kind == LIBXL__DEVICE_KIND_QDISK);
                 break;
             default:
@@ -2620,7 +2634,12 @@ static int libxl__device_disk_from_xs_be(libxl__gc *gc,
         goto cleanup;
     }
 
-    /* "params" may not be present; but everything else must be. */
+    /*
+     * "params" may not be present; but everything else must be.
+     * colo releated entries(colo-host, colo-port, colo-export,
+     * active-disk and hidden-disk) are present only if colo is
+     * enabled.
+     */
     tmp = xs_read(ctx->xsh, XBT_NULL,
                   GCSPRINTF("%s/params", be_path), &len);
     if (tmp && strchr(tmp, ':')) {
@@ -2628,6 +2647,49 @@ static int libxl__device_disk_from_xs_be(libxl__gc *gc,
         free(tmp);
     } else {
         disk->pdev_path = tmp;
+    }
+
+    tmp = xs_read(ctx->xsh, XBT_NULL,
+                  GCSPRINTF("%s/colo-host", be_path), &len);
+    if (tmp) {
+        libxl_defbool_set(&disk->colo_enable, true);
+        disk->colo_host = tmp;
+    } else {
+        libxl_defbool_set(&disk->colo_enable, false);
+    }
+
+    if (libxl_defbool_val(disk->colo_enable)) {
+        tmp = xs_read(ctx->xsh, XBT_NULL,
+                      GCSPRINTF("%s/colo-port", be_path), &len);
+        if (!tmp) {
+            LOG(ERROR, "Missing xenstore node %s/colo-port", be_path);
+            goto cleanup;
+        }
+        disk->colo_port = tmp;
+
+        tmp = xs_read(ctx->xsh, XBT_NULL,
+                      GCSPRINTF("%s/colo-export", be_path), &len);
+        if (!tmp) {
+            LOG(ERROR, "Missing xenstore node %s/colo-export", be_path);
+            goto cleanup;
+        }
+        disk->colo_export = tmp;
+
+        tmp = xs_read(ctx->xsh, XBT_NULL,
+                      GCSPRINTF("%s/active-disk", be_path), &len);
+        if (!tmp) {
+            LOG(ERROR, "Missing xenstore node %s/active-disk", be_path);
+            goto cleanup;
+        }
+        disk->active_disk = tmp;
+
+        tmp = xs_read(ctx->xsh, XBT_NULL,
+                      GCSPRINTF("%s/hidden-disk", be_path), &len);
+        if (!tmp) {
+            LOG(ERROR, "Missing xenstore node %s/hidden-disk", be_path);
+            goto cleanup;
+        }
+        disk->hidden_disk = tmp;
     }
 
 

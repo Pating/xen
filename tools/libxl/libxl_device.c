@@ -196,6 +196,10 @@ static int disk_try_backend(disk_try_backend_args *a,
             goto bad_format;
         }
 
+        if (libxl_defbool_val(a->disk->colo_enable) ||
+            a->disk->active_disk || a->disk->hidden_disk)
+            goto bad_colo;
+
         if (a->disk->backend_domid != LIBXL_TOOLSTACK_DOMID) {
             LOG(DEBUG, "Disk vdev=%s, is using a storage driver domain, "
                        "skipping physical device check", a->disk->vdev);
@@ -218,6 +222,10 @@ static int disk_try_backend(disk_try_backend_args *a,
     case LIBXL_DISK_BACKEND_TAP:
         if (a->disk->script) goto bad_script;
 
+        if (libxl_defbool_val(a->disk->colo_enable) ||
+            a->disk->active_disk || a->disk->hidden_disk)
+            goto bad_colo;
+
         if (a->disk->is_cdrom) {
             LOG(DEBUG, "Disk vdev=%s, backend tap unsuitable for cdroms",
                        a->disk->vdev);
@@ -236,6 +244,22 @@ static int disk_try_backend(disk_try_backend_args *a,
 
     case LIBXL_DISK_BACKEND_QDISK:
         if (a->disk->script) goto bad_script;
+        if (libxl_defbool_val(a->disk->colo_enable)) {
+            if (!a->disk->colo_host)
+                goto bad_colo_host;
+
+            if (!a->disk->colo_port)
+                goto bad_colo_port;
+
+            if (!a->disk->colo_export)
+                goto bad_colo_export;
+
+            if (!a->disk->active_disk)
+                goto bad_active_disk;
+
+            if (!a->disk->hidden_disk)
+                goto bad_hidden_disk;
+        }
         return backend;
 
     default:
@@ -254,6 +278,36 @@ static int disk_try_backend(disk_try_backend_args *a,
 
  bad_script:
     LOG(DEBUG, "Disk vdev=%s, backend %s not compatible with script=...",
+        a->disk->vdev, libxl_disk_backend_to_string(backend));
+    return 0;
+
+ bad_colo:
+    LOG(DEBUG, "Disk vdev=%s, backend %s not compatible with colo",
+        a->disk->vdev, libxl_disk_backend_to_string(backend));
+    return 0;
+
+ bad_colo_host:
+    LOG(DEBUG, "Disk vdev=%s, backend %s needs colo-host=... for colo",
+        a->disk->vdev, libxl_disk_backend_to_string(backend));
+    return 0;
+
+ bad_colo_port:
+    LOG(DEBUG, "Disk vdev=%s, backend %s needs colo-port=... for colo",
+        a->disk->vdev, libxl_disk_backend_to_string(backend));
+    return 0;
+
+ bad_colo_export:
+    LOG(DEBUG, "Disk vdev=%s, backend %s needs colo-export=... for colo",
+        a->disk->vdev, libxl_disk_backend_to_string(backend));
+    return 0;
+
+ bad_active_disk:
+    LOG(DEBUG, "Disk vdev=%s, backend %s needs active-disk=... for colo",
+        a->disk->vdev, libxl_disk_backend_to_string(backend));
+    return 0;
+
+ bad_hidden_disk:
+    LOG(DEBUG, "Disk vdev=%s, backend %s needs hidden-disk=... for colo",
         a->disk->vdev, libxl_disk_backend_to_string(backend));
     return 0;
 }
