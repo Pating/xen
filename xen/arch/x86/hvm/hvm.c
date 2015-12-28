@@ -6374,20 +6374,6 @@ static int hvmop_get_param(
     case HVM_PARAM_X87_FIP_WIDTH:
         a.value = d->arch.x87_fip_width;
         break;
-    case HVM_PARAM_IOREQ_PFN:
-    case HVM_PARAM_BUFIOREQ_PFN:
-    case HVM_PARAM_BUFIOREQ_EVTCHN:
-    {
-        domid_t domid;
-
-        /* May need to create server. */
-        domid = d->arch.hvm_domain.params[HVM_PARAM_DM_DOMAIN];
-        rc = hvm_create_ioreq_server(d, domid, 1,
-                                     HVM_IOREQSRV_BUFIOREQ_LEGACY, NULL);
-        if ( rc != 0 && rc != -EEXIST )
-            goto out;
-    }
-    /*FALLTHRU*/
     default:
         a.value = d->arch.hvm_domain.params[a.index];
         break;
