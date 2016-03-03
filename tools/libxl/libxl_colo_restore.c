@@ -478,6 +478,7 @@ static void colo_common_read_stream_done(libxl__egc *egc,
  */
 static void libxl__colo_restore_domain_checkpoint_callback(void *data)
 {
+        fprintf(stderr, "%s\n", __func__);
     libxl__save_helper_state *shs = data;
     libxl__stream_read_state *srs = CONTAINER_OF(shs, *srs, shs);
     libxl__domain_create_state *dcs = CONTAINER_OF(srs, *dcs, srs);
@@ -538,6 +539,7 @@ static void colo_unpause_svm(libxl__egc *egc,
 
 static void libxl__colo_restore_domain_resume_callback(void *data)
 {
+        fprintf(stderr, "%s\n", __func__);
     libxl__save_helper_state *shs = data;
     libxl__stream_read_state *srs = CONTAINER_OF(shs, *srs, shs);
     libxl__domain_create_state *dcs = CONTAINER_OF(srs, *dcs, srs);
@@ -863,6 +865,7 @@ static void colo_stream_read_done(libxl__egc *egc,
 
 static void libxl__colo_restore_domain_wait_checkpoint_callback(void *data)
 {
+        fprintf(stderr, "%s\n", __func__);
     libxl__save_helper_state *shs = data;
     libxl__stream_read_state *srs = CONTAINER_OF(shs, *srs, shs);
     libxl__domain_create_state *dcs = CONTAINER_OF(srs, *dcs, srs);
@@ -935,6 +938,7 @@ static void colo_restore_postsuspend_cb(libxl__egc *egc,
 
 static void libxl__colo_restore_domain_suspend_callback(void *data)
 {
+        fprintf(stderr, "%s\n", __func__);
     libxl__save_helper_state *shs = data;
     libxl__stream_read_state *srs = CONTAINER_OF(shs, *srs, shs);
     libxl__domain_create_state *dcs = CONTAINER_OF(srs, *dcs, srs);

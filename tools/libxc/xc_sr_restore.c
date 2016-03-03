@@ -836,6 +836,7 @@ int xc_domain_restore(xc_interface *xch, int io_fd, uint32_t dom,
             .fd = io_fd,
         };
 
+        fprintf(stderr, "xc_domain_restore\n");
     /* GCC 4.4 (of CentOS 6.x vintage) can' t initialise anonymous unions. */
     ctx.restore.console_evtchn = console_evtchn;
     ctx.restore.console_domid = console_domid;

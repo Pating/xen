@@ -933,6 +933,7 @@ int xc_domain_save(xc_interface *xch, int io_fd, uint32_t dom,
     ctx.save.checkpointed = checkpointed_stream;
     ctx.save.recv_fd = recv_fd;
 
+        fprintf(stderr, "xc_domain_save\n");
     /* If altering migration_stream update this assert too. */
     assert(checkpointed_stream == MIG_STREAM_NONE ||
            checkpointed_stream == MIG_STREAM_REMUS ||

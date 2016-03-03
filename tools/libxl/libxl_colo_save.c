@@ -242,6 +242,7 @@ static void colo_postsuspend_cb(libxl__egc *egc,
 
 static void libxl__colo_save_domain_suspend_callback(void *data)
 {
+        fprintf(stderr, "%s\n", __func__);
     libxl__save_helper_state *shs = data;
     libxl__egc *egc = shs->egc;
     libxl__stream_write_state *sws = CONTAINER_OF(shs, *sws, shs);
@@ -341,6 +342,7 @@ out:
 /* ===================== colo: send tailbuf ========================== */
 static void libxl__colo_save_domain_checkpoint_callback(void *data)
 {
+        fprintf(stderr, "%s\n", __func__);
     libxl__save_helper_state *shs = data;
     libxl__stream_write_state *sws = CONTAINER_OF(shs, *sws, shs);
     libxl__domain_save_state *dss = sws->dss;
@@ -374,6 +376,7 @@ static void colo_read_svm_resumed_done(libxl__egc *egc,
 
 static void libxl__colo_save_domain_resume_callback(void *data)
 {
+        fprintf(stderr, "%s\n", __func__);
     libxl__save_helper_state *shs = data;
     libxl__egc *egc = shs->egc;
     libxl__stream_write_state *sws = CONTAINER_OF(shs, *sws, shs);
@@ -597,6 +600,7 @@ static void colo_device_commit_cb(libxl__egc *egc,
 
 static void libxl__colo_save_domain_wait_checkpoint_callback(void *data)
 {
+        fprintf(stderr, "%s\n", __func__);
     libxl__save_helper_state *shs = data;
     libxl__stream_write_state *sws = CONTAINER_OF(shs, *sws, shs);
     libxl__domain_save_state *dss = sws->dss;

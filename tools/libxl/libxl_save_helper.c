@@ -246,6 +246,7 @@ int main(int argc, char **argv)
     assert(mode);
 
     if (!strcmp(mode,"--save-domain")) {
+            fprintf(stderr, "--save-domain\n");
 
         io_fd =                    atoi(NEXTARG);
         recv_fd =                  atoi(NEXTARG);
@@ -269,6 +270,8 @@ int main(int argc, char **argv)
         complete(r);
 
     } else if (!strcmp(mode,"--restore-domain")) {
+
+            fprintf(stderr, "--restore-domain\n");
 
         io_fd =                    atoi(NEXTARG);
         send_back_fd =             atoi(NEXTARG);
