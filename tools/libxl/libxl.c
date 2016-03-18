@@ -2511,6 +2511,7 @@ static void device_disk_add(libxl__egc *egc, uint32_t domid,
                     flexarray_append(back, "colo-host");
                     flexarray_append(back, libxl__sprintf(gc, "%s", disk->colo_host));
                     flexarray_append(back, "colo-port");
+                    LOG(ERROR, "%s:%d %d", __func__, __LINE__, disk->colo_port);
                     flexarray_append(back, libxl__sprintf(gc, "%d", disk->colo_port));
                     flexarray_append(back, "colo-export");
                     flexarray_append(back, libxl__sprintf(gc, "%s", disk->colo_export));

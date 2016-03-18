@@ -47,6 +47,7 @@ static void colo_qdisk_setup(libxl__egc *egc, libxl__checkpoint_device *dev,
     const char *host = disk->colo_host;
     const char *export_name = disk->colo_export;
     const int domid = cds->domid;
+    printf("%s:%d %d", __func__, __LINE__, disk->colo_port);
 
     STATE_AO_GC(dev->cds->ao);
 
@@ -159,6 +160,7 @@ static void colo_qdisk_save_preresume(libxl__egc *egc,
     const int domid = dev->cds->domid;
     const char *host = disk->colo_host;
     int port = disk->colo_port;
+    printf("%s:%d %d", __func__, __LINE__, disk->colo_port);
     const char *export_name = disk->colo_export;
 
     EGC_GC;
